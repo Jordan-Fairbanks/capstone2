@@ -1,2 +1,2 @@
 # capstone2
-This repository is for my capstone 2 project for Galvanize. Right now it only contains proposals. It will be updated periodically.
+This repository is for my capstone 2 NLP project for Galvanize's Data Science Intensive bootcamp. My project focuses on the [Consumer Complaints dataset](https://www.kaggle.com/shashwatwork/consume-complaints-dataset-fo-nlp). I attempt to build various categorical classifier models and discuss methods for improving performance.
