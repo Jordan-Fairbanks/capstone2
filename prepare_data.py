@@ -80,6 +80,27 @@ if __name__ == '__main__':
     nltk.download('punkt')
     nltk.download('wordnet')
 
+    # create a balanced sample from the dataset 
+    df = pd.read_csv('data/complaints_processed.csv')
+    df.drop('Unnamed: 0',axis=1, inplace=True)
+    df.dropna(inplace=True)
+    # separate into categories and pull random samples from each
+    cards = df[df['product'] =='credit_card']
+    banking = df[df['product'] =='retail_banking']
+    credit = df[df['product'] =='credit_reporting']
+    mortgage = df[df['product'] =='mortgages_and_loans']
+    debt = df[df['product'] =='debt_collection']
+
+    balanced = cards.sample(3000)
+    balanced = balanced.append(banking.sample(3000), ignore_index=True)
+    balanced = balanced.append(credit.sample(3000), ignore_index=True)
+    balanced = balanced.append(mortgage.sample(3000), ignore_index=True)
+    balanced = balanced.append(debt.sample(3000), ignore_index=True)
+
+    # save as parquet file
+    balanced.to_parquet('data/balanced_sample')
+
+
     # read file, assign feature and target objects
     complaints = pd.read_parquet('data/balanced_sample')
     X = complaints['narrative'].values
@@ -98,14 +119,17 @@ if __name__ == '__main__':
     
     # add tsne features to original tfidf matrix
     reduced = tsne_map(matrix.todense())
-    matrix = np.hstack(matrix.todense(),reduced)
+    matrix = np.hstack((matrix.todense(),reduced))
 
     # split into training and testing 
     X_train, X_test, y_train, y_test = train_test_split(matrix, y, stratify=y)
 
     #  save as parqet files
-    df_train = pd.DataFrame(X_train, columns=tv.get_feature_names())
-    df_test = pd.DataFrame(X_test, columns=tv.get_feature_names())
+    cols = tv.get_feature_names()
+    cols.append('tsne1')
+    cols.append('tsne2')
+    df_train = pd.DataFrame(X_train, columns=cols)
+    df_test = pd.DataFrame(X_test, columns=cols)
     df_train['Target'] = y_train
     df_test['Target'] = y_test
     df_train.to_parquet('data/train')
